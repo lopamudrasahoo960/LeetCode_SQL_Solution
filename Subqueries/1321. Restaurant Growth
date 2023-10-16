@@ -1,12 +1,9 @@
 # Write your MySQL query statement below
-SELECT 
-    a.visited_on, 
-    SUM(b.amount) AS amount, 
-    ROUND(SUM(b.amount)/7, 2) AS average_amount
-
-FROM 
-    (SELECT DISTINCT visited_on FROM Customer) a 
-    JOIN Customer b ON DATEDIFF(a.visited_on, b.visited_on) BETWEEN 0 AND 6
-
-GROUP BY a.visited_on
-HAVING a.visited_on >= MIN(b.visited_on) + 6
+select visits.visited_on as visited_on, sum(c.amount) as amount, round(sum(c.amount) / 7.0, 2) as average_amount
+    from (
+        select distinct visited_on from Customer
+            where datediff(visited_on, (select min(visited_on) from Customer)) >= 6
+    ) visits left join Customer c
+    on datediff(visits.visited_on, c.visited_on) between 0 and 6
+    group by visits.visited_on
+    order by visited_on;
